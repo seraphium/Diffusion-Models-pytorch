@@ -109,3 +109,5 @@ data/
 *.pth
 runs/
 *.json
+results/
+models/

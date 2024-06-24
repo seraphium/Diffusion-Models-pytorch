@@ -83,8 +83,7 @@ def train(args):
     setup_logging(args.run_name)
     device = args.device
     dataloader = get_face_data(args)
-    model = UNet().to(device)
-    print(model)
+    model = UNet(device=device).to(device)
     total_params = sum(p.numel() for p in model.parameters())
     print(f"total parameters: {total_params}")
 
@@ -123,14 +122,22 @@ def train(args):
 def launch():
     import argparse
 
+    device = (
+        "cuda"
+        if torch.cuda.is_available()
+        else "mps" if torch.backends.mps.is_available() else "cpu"
+    )
     parser = argparse.ArgumentParser()
     args = parser.parse_args()
     args.run_name = "DDPM_Uncondtional"
-    args.epochs = 500
-    args.batch_size = 10
+    args.epochs = 100
+    args.batch_size = 20
     args.image_size = 64
-    args.dataset_path = r"..\crypko_data\faces"
-    args.device = "cuda"
+    args.dataset_path = r"../crypko_data/faces"
+
+    args.device = device
+    print("device:", args.device)
+
     args.lr = 3e-4
     train(args)
 
