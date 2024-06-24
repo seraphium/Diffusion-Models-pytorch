@@ -38,6 +38,7 @@ class Diffusion:
     def prepare_noise_schedule(self):
         return torch.linspace(self.beta_start, self.beta_end, self.noise_steps)
 
+    # $$ x_t=\sqrt{\bar{\alpha}_t} x_0+\sqrt{1-\bar{\alpha}_t} \epsilon $$
     def noise_images(self, x, t):
         sqrt_alpha_hat = torch.sqrt(self.alpha_hat[t])[:, None, None, None]
         sqrt_one_minus_alpha_hat = torch.sqrt(1 - self.alpha_hat[t])[
@@ -64,6 +65,7 @@ class Diffusion:
                     noise = torch.randn_like(x)
                 else:
                     noise = torch.zeros_like(x)
+                # $$x_{t-1}=\frac{1}{\sqrt{\alpha_t}}\left(x_t-\frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}} \epsilon_\theta\left(x_t, t\right)\right)+\sqrt{\beta_t} z$$
                 x = (
                     1
                     / torch.sqrt(alpha)
@@ -98,9 +100,13 @@ def train(args):
         pbar = tqdm(dataloader)
         for i, (images, _) in enumerate(pbar):
             images = images.to(device)
+            # 随机取一个 t
             t = diffusion.sample_timesteps(images.shape[0]).to(device)
+            # 图像加噪音
             x_t, noise = diffusion.noise_images(images, t)
+            # 反过来预测出噪音
             predicted_noise = model(x_t, t)
+            # 预测的跟实际噪音取MSE
             loss = mse(noise, predicted_noise)
 
             optimizer.zero_grad()
