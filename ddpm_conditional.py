@@ -118,7 +118,9 @@ def train(args):
             ema.step_ema(ema_model, model)
 
             pbar.set_postfix(MSE=loss.item())
-            logger.add_scalar("MSE", loss.item(), global_step=epoch * l + i)
+            logger.add_scalar(
+                "MSE - Conditional", loss.item(), global_step=epoch * l + i
+            )
 
         if epoch % 10 == 0:
             labels = torch.arange(10).long().to(device)
@@ -158,11 +160,11 @@ def launch():
     parser = argparse.ArgumentParser()
     args = parser.parse_args()
     args.run_name = "DDPM_conditional"
-    args.epochs = 300
-    args.batch_size = 14
+    args.epochs = 100
+    args.batch_size = 15
     args.image_size = 64
     args.num_classes = 10
-    args.dataset_path = r"/Users/zezhang/Dev/cifar-10"
+    args.dataset_path = r"../cifar-10/cifar10-64"
 
     args.device = device
     args.lr = 3e-4
