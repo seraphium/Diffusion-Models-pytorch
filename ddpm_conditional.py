@@ -90,7 +90,7 @@ def train(args):
     setup_logging(args.run_name)
     device = args.device
     dataloader = get_data(args)
-    model = UNet_conditional(num_classes=args.num_classes).to(device)
+    model = UNet_conditional(num_classes=args.num_classes, device=device).to(device)
     optimizer = optim.AdamW(model.parameters(), lr=args.lr)
     mse = nn.MSELoss()
     diffusion = Diffusion(img_size=args.image_size, device=device)
@@ -162,7 +162,8 @@ def launch():
     args.batch_size = 14
     args.image_size = 64
     args.num_classes = 10
-    args.dataset_path = r"..\cifar10\cifar10-64\train"
+    args.dataset_path = r"/Users/zezhang/Dev/cifar-10"
+
     args.device = device
     args.lr = 3e-4
     train(args)
