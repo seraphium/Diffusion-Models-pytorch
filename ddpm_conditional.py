@@ -128,7 +128,7 @@ def train(args):
             ema_sampled_images = diffusion.sample(
                 ema_model, n=len(labels), labels=labels
             )
-            plot_images(sampled_images)
+            # plot_images(sampled_images)
             save_images(
                 sampled_images, os.path.join("results", args.run_name, f"{epoch}.jpg")
             )
