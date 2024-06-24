@@ -150,6 +150,11 @@ def train(args):
 def launch():
     import argparse
 
+    device = (
+        "cuda"
+        if torch.cuda.is_available()
+        else "mps" if torch.backends.mps.is_available() else "cpu"
+    )
     parser = argparse.ArgumentParser()
     args = parser.parse_args()
     args.run_name = "DDPM_conditional"
@@ -158,7 +163,7 @@ def launch():
     args.image_size = 64
     args.num_classes = 10
     args.dataset_path = r"..\cifar10\cifar10-64\train"
-    args.device = "cuda"
+    args.device = device
     args.lr = 3e-4
     train(args)
 
