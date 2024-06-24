@@ -1,4 +1,6 @@
 import os
+import numpy as np
+import random
 import torch
 import torch.nn as nn
 from matplotlib import pyplot as plt
@@ -14,6 +16,13 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt="%I:%M:%S",
 )
+
+torch.manual_seed(0)
+np.random.seed(0)
+random.seed(0)
+if torch.cuda.is_available():
+    torch.cuda.manual_seed(0)
+    torch.cuda.manual_seed_all(0)
 
 
 class Diffusion:
@@ -83,16 +92,20 @@ class Diffusion:
 
 def train(args):
     setup_logging(args.run_name)
+    logger = SummaryWriter(os.path.join("runs", args.run_name))
+
     device = args.device
     dataloader = get_face_data(args)
     model = UNet(device=device).to(device)
+    # dummy_x_t = torch.zeros(20, 3, 64, 64).to(device)
+    # dummy_t = torch.zeros(20).to(device)
+    # logger.add_graph(model, (dummy_x_t, dummy_t))
     total_params = sum(p.numel() for p in model.parameters())
     print(f"total parameters: {total_params}")
 
     optimizer = optim.AdamW(model.parameters(), lr=args.lr)
     mse = nn.MSELoss()
     diffusion = Diffusion(img_size=args.image_size, device=device)
-    logger = SummaryWriter(os.path.join("runs", args.run_name))
     l = len(dataloader)
 
     for epoch in range(args.epochs):
