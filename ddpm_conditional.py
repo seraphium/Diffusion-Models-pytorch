@@ -90,7 +90,7 @@ def train(args):
     setup_logging(args.run_name)
     device = args.device
     dataloader = get_data(args)
-    model = UNet_conditional(num_classes=args.num_classes).to(device)
+    model = UNet_conditional(num_classes=args.num_classes, device=device).to(device)
     optimizer = optim.AdamW(model.parameters(), lr=args.lr)
     mse = nn.MSELoss()
     diffusion = Diffusion(img_size=args.image_size, device=device)
@@ -118,7 +118,9 @@ def train(args):
             ema.step_ema(ema_model, model)
 
             pbar.set_postfix(MSE=loss.item())
-            logger.add_scalar("MSE", loss.item(), global_step=epoch * l + i)
+            logger.add_scalar(
+                "MSE - Conditional", loss.item(), global_step=epoch * l + i
+            )
 
         if epoch % 10 == 0:
             labels = torch.arange(10).long().to(device)
@@ -158,11 +160,12 @@ def launch():
     parser = argparse.ArgumentParser()
     args = parser.parse_args()
     args.run_name = "DDPM_conditional"
-    args.epochs = 300
-    args.batch_size = 14
+    args.epochs = 100
+    args.batch_size = 15
     args.image_size = 64
     args.num_classes = 10
-    args.dataset_path = r"..\cifar10\cifar10-64\train"
+    args.dataset_path = r"../cifar-10/cifar10-64"
+
     args.device = device
     args.lr = 3e-4
     train(args)
