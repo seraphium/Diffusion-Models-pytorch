@@ -1,4 +1,6 @@
 import os
+import argparse
+
 import copy
 import numpy as np
 import torch
@@ -149,9 +151,7 @@ def train(args):
             )
 
 
-def launch():
-    import argparse
-
+if __name__ == "__main__":
     device = (
         "cuda"
         if torch.cuda.is_available()
@@ -168,17 +168,12 @@ def launch():
 
     args.device = device
     args.lr = 3e-4
-    train(args)
-
-
-if __name__ == "__main__":
-    launch()
-    # device = "cuda"
-    # model = UNet_conditional(num_classes=10).to(device)
-    # ckpt = torch.load("./models/DDPM_conditional/ckpt.pt")
-    # model.load_state_dict(ckpt)
-    # diffusion = Diffusion(img_size=64, device=device)
-    # n = 8
-    # y = torch.Tensor([6] * n).long().to(device)
-    # x = diffusion.sample(model, n, y, cfg_scale=0)
-    # plot_images(x)
+    # train(args)
+    model = UNet_conditional(num_classes=10, device=device).to(device)
+    ckpt = torch.load("./models/DDPM_conditional/ema_ckpt.pt")
+    model.load_state_dict(ckpt)
+    diffusion = Diffusion(img_size=64, device=device)
+    n = 10
+    y = torch.Tensor([1] * n).long().to(device)
+    x = diffusion.sample(model, n, y, cfg_scale=0)
+    save_images(x, os.path.join("results", args.run_name, f"ema_test.jpg"))
